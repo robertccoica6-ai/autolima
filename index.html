@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoLima - Venta de Autos Usados y de Segunda en Lima</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Personalización de scrollbar suave */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- TOAST NOTIFICACIÓN -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 ease-in-out max-w-md bg-emerald-600 text-white px-5 py-4 rounded-xl shadow-2xl flex items-center gap-3">
+        <i class="fa-solid fa-circle-check text-2xl"></i>
+        <div>
+            <h4 id="toastTitle" class="font-bold text-sm">¡Operación exitosa!</h4>
+            <p id="toastMessage" class="text-xs text-emerald-100">Acción completada con éxito.</p>
+        </div>
+    </div>
+
+    <!-- ENCABEZADO / NAVBAR -->
+    <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md text-white border-b border-slate-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+            
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-2 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-black text-xl shadow-md group-hover:scale-105 transition-transform">
+                    <i class="fa-solid fa-car-side"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-blue-400 bg-clip-text text-transparent">AutoLima</span>
+                    <span class="block text-[10px] text-blue-400 font-semibold tracking-wider uppercase">Autos Usados Lima</span>
+                </div>
+            </a>
+
+            <!-- Buscador Rápido (Desktop) -->
+            <div class="hidden md:flex flex-1 max-w-md mx-6 relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" id="headerSearchInput" oninput="syncHeaderSearch(this.value)" placeholder="Buscar marca, modelo o distrito en Lima..." 
+                       class="w-full bg-slate-800/80 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+            </div>
+
+            <!-- Acciones Header -->
+            <div class="flex items-center gap-3">
+                <button onclick="openPublishModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs sm:text-sm px-4 sm:px-5 py-2.5 rounded-xl shadow-lg shadow-blue-600/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-plus text-base"></i>
+                    <span>Vender mi auto en Lima</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO BANNER -->
+    <section class="bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 text-white py-12 px-4 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-medium mb-4">
+                <i class="fa-solid fa-location-dot"></i> Autos de segunda y seminuevos en Lima
+            </span>
+            <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4">
+                Venta de Autos Usados y de Segunda en <span class="bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">Lima</span>
+            </h1>
+            <p class="text-slate-300 text-sm sm:text-base max-w-2xl mx-auto mb-6">
+                Encuentra vehículos semi-nuevos y de segunda con trato directo en Surco, Miraflores, La Victoria, Los Olivos, San Borja y todo Lima. Cotización instantánea en USD ($) y Soles (S/).
+            </p>
+            <div class="flex flex-wrap justify-center gap-6 text-xs text-slate-400 font-medium">
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-400"></i> Precios en USD y Soles (S/)</span>
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-400"></i> Trato directo con propietarios en Lima</span>
+                <span class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-400"></i> Publicación directa y sin comisiones</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTENIDO PRINCIPAL CON FILTROS Y CATÁLOGO -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <!-- PANEL DE FILTROS AVANZADOS -->
+            <aside class="lg:col-span-1">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 sticky top-24">
+                    <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+                        <h2 class="font-bold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-blue-600"></i> Filtros de búsqueda
+                        </h2>
+                        <button onclick="resetFilters()" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                            Limpiar
+                        </button>
+                    </div>
+
+                    <div class="space-y-5">
+                        <!-- Buscador por Texto -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Búsqueda rápida</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                                <input type="text" id="searchInput" oninput="applyFilters()" placeholder="Toyota, Surco, SUV..." 
+                                       class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Filtro por Distrito de Lima -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Distrito en Lima</label>
+                            <select id="districtFilter" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition-all">
+                                <option value="all">Todos los distritos</option>
+                                <option value="Surco">Surco</option>
+                                <option value="Miraflores">Miraflores</option>
+                                <option value="La Victoria">La Victoria</option>
+                                <option value="Los Olivos">Los Olivos</option>
+                                <option value="San Borja">San Borja</option>
+                                <option value="San Isidro">San Isidro</option>
+                                <option value="La Molina">La Molina</option>
+                                <option value="Ate">Ate</option>
+                            </select>
+                        </div>
+
+                        <!-- Rango de Precio Máximo -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Precio Máximo (USD)</label>
+                                <span id="priceDisplay" class="text-xs font-bold text-blue-600">$50,000</span>
+                            </div>
+                            <input type="range" id="priceFilter" min="3000" max="60000" step="1000" value="60000" oninput="applyFilters()" 
+                                   class="w-full accent-blue-600 cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                                <span>$3,000</span>
+                                <span>$60,000+</span>
+                            </div>
+                        </div>
+
+                        <!-- Año Mínimo -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Año (Desde)</label>
+                            <select id="yearFilter" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition-all">
+                                <option value="0">Todos los años</option>
+                                <option value="2023">2023 en adelante</option>
+                                <option value="2020">2020 en adelante</option>
+                                <option value="2017">2017 en adelante</option>
+                                <option value="2015">2015 en adelante</option>
+                            </select>
+                        </div>
+
+                        <!-- Tipo de Transmisión -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Transmisión</label>
+                            <div class="grid grid-cols-3 gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-medium text-slate-600">
+                                <button type="button" onclick="setTransmissionFilter('all')" id="btnTransAll" class="py-1.5 rounded-lg bg-white shadow-xs text-blue-600 font-bold transition-all">Todas</button>
+                                <button type="button" onclick="setTransmissionFilter('Automática')" id="btnTransAuto" class="py-1.5 rounded-lg hover:text-slate-900 transition-all">Auto</button>
+                                <button type="button" onclick="setTransmissionFilter('Mecánica')" id="btnTransMec" class="py-1.5 rounded-lg hover:text-slate-900 transition-all">Mecánica</button>
+                            </div>
+                        </div>
+
+                        <!-- Tipo de Combustible -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Combustible</label>
+                            <select id="fuelFilter" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition-all">
+                                <option value="all">Todos los combustibles</option>
+                                <option value="Gasolina">Gasolina</option>
+                                <option value="Diésel">Diésel</option>
+                                <option value="Gas / GLP/GNV">Gas (GLP/GNV)</option>
+                                <option value="Híbrido">Híbrido</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- CATÁLOGO DE VEHÍCULOS -->
+            <section class="lg:col-span-3">
+                
+                <!-- Barra de Estado y Contador de Resultados -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-lg">Vehículos Disponibles</h3>
+                        <p class="text-xs text-slate-500" id="resultCount">Cargando catálogo...</p>
+                    </div>
+                    
+                    <!-- Ordenar por -->
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <span class="text-xs font-medium text-slate-500 whitespace-nowrap">Ordenar por:</span>
+                        <select id="sortBy" onchange="applyFilters()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 font-medium focus:outline-none focus:border-blue-500">
+                            <option value="recent">Más recientes</option>
+                            <option value="priceLow">Precio: Menor a Mayor</option>
+                            <option value="priceHigh">Precio: Mayor a Menor</option>
+                            <option value="yearNew">Año: Más reciente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Contenedor Grid de Tarjetas -->
+                <div id="carGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <!-- Las tarjetas se generan dinámicamente con JavaScript -->
+                </div>
+
+                <!-- Estado Vacío (Sin resultados) -->
+                <div id="emptyState" class="hidden bg-white rounded-2xl border border-slate-200 p-12 text-center my-6">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                        <i class="fa-solid fa-car-tunnel"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-1">No encontramos vehículos</h3>
+                    <p class="text-sm text-slate-500 mb-6 max-w-sm mx-auto">No hay ningún auto registrado que coincida con los criterios de búsqueda seleccionados.</p>
+                    <button onclick="resetFilters()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition-all">
+                        Restablecer todos los filtros
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- MODAL 1: FORMULARIO PUBLICAR AUTO -->
+    <div id="publishModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-8 transform transition-all">
+            
+            <button onclick="closePublishModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-full flex items-center justify-center transition-all">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="mb-6">
+                <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Ventas C2C Lima</span>
+                <h3 class="text-2xl font-black text-slate-900">Vender mi auto usado en Lima</h3>
+                <p class="text-xs text-slate-500">Llena los datos para publicar tu vehículo de segunda en Lima y recibir consultas por WhatsApp.</p>
+            </div>
+
+            <form id="publishForm" onsubmit="handlePublish(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Marca *</label>
+                        <input type="text" id="inputBrand" required placeholder="Ej: Toyota, Hyundai" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Modelo *</label>
+                        <input type="text" id="inputModel" required placeholder="Ej: Yaris, Tucson" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Año *</label>
+                        <input type="number" id="inputYear" required min="1990" max="2025" value="2020" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Precio en USD ($) *</label>
+                        <input type="number" id="inputPrice" required min="500" placeholder="12500" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kilometraje (km) *</label>
+                        <input type="number" id="inputMileage" required min="0" placeholder="45000" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Transmisión</label>
+                        <select id="inputTransmission" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                            <option value="Automática">Automática</option>
+                            <option value="Mecánica">Mecánica</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Combustible</label>
+                        <select id="inputFuel" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                            <option value="Gasolina">Gasolina</option>
+                            <option value="Diésel">Diésel</option>
+                            <option value="Gas / GLP/GNV">Gas / GLP</option>
+                            <option value="Híbrido">Híbrido</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Ubicación *</label>
+                        <input type="text" id="inputLocation" required placeholder="Ej: Lima, Miraflores" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Teléfono / WhatsApp *</label>
+                        <input type="tel" id="inputPhone" required placeholder="+51 987 654 321" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <!-- NUEVO CAMPO DE SUBIDA DE IMÁGENES MÚLTIPLES -->
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Fotos del Vehículo (Selecciona varias)</label>
+                        <input type="file" id="inputFileImages" multiple accept="image/*" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 cursor-pointer">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Descripción o detalles especiales</label>
+                    <textarea id="inputDescription" rows="3" placeholder="Único dueño, mantenimientos al día en concesionario, aire acondicionado impecable..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-blue-500"></textarea>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" onclick="closePublishModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-xs hover:bg-slate-50">Cancelar</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-lg shadow-blue-600/20">Publicar Vehículo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: DETALLE DEL VEHÍCULO Y CONTACTO -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl relative my-8 transform transition-all">
+            
+            <button onclick="closeDetailModal()" class="absolute top-4 right-4 z-10 text-white bg-slate-900/60 hover:bg-slate-900/80 w-9 h-9 rounded-full flex items-center justify-center transition-all backdrop-blur-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 h-full">
+                <!-- Imagen Principal y Galería de Miniaturas -->
+                <div class="relative bg-slate-900 flex flex-col justify-between">
+                    <!-- Imagen Principal -->
+                    <div class="relative flex-1 min-h-[250px] md:min-h-[350px] flex items-center justify-center p-2">
+                        <img id="detailImg" src="" alt="Auto" class="max-w-full max-h-full object-contain rounded-xl">
+                        <div class="absolute top-4 left-4 bg-blue-600 text-white text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-wider shadow-md">
+                            Verificado
+                        </div>
+                    </div>
+                    <!-- Miniaturas -->
+                    <div id="detailThumbnails" class="w-full flex gap-2 p-3 bg-slate-950 overflow-x-auto snap-x hidden">
+                        <!-- Generadas por JS -->
+                    </div>
+                </div>
+
+                <!-- Información y Contacto -->
+                <div class="p-6 sm:p-8 flex flex-col justify-between space-y-6">
+                    <div>
+                        <div class="flex items-center gap-2 text-xs text-blue-600 font-bold mb-1">
+                            <i class="fa-solid fa-location-dot"></i> <span id="detailLocation">Ubicación</span>
+                        </div>
+                        <h2 id="detailTitle" class="text-2xl font-black text-slate-900 mb-2">Marca y Modelo</h2>
+                        
+                        <!-- Contenedor Precio -->
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-6">
+                            <div class="text-xs text-slate-500 font-medium mb-0.5">Precio al contado</div>
+                            <div class="flex items-baseline gap-3">
+                                <span id="detailPriceUSD" class="text-3xl font-black text-emerald-600">$0</span>
+                                <span id="detailPricePEN" class="text-sm font-semibold text-slate-500">S/ 0</span>
+                            </div>
+                        </div>
+
+                        <!-- Especificaciones Técnicas (Grid Icons) -->
+                        <div class="grid grid-cols-2 gap-3 mb-6">
+                            <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <i class="fa-solid fa-calendar text-blue-500 text-base"></i>
+                                <div>
+                                    <div class="text-[10px] uppercase text-slate-400 font-semibold">Año</div>
+                                    <div id="detailYear" class="text-xs font-bold text-slate-800">2020</div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <i class="fa-solid fa-gauge-high text-blue-500 text-base"></i>
+                                <div>
+                                    <div class="text-[10px] uppercase text-slate-400 font-semibold">Kilometraje</div>
+                                    <div id="detailMileage" class="text-xs font-bold text-slate-800">0 km</div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <i class="fa-solid fa-gear text-blue-500 text-base"></i>
+                                <div>
+                                    <div class="text-[10px] uppercase text-slate-400 font-semibold">Transmisión</div>
+                                    <div id="detailTransmission" class="text-xs font-bold text-slate-800">Automática</div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                                <i class="fa-solid fa-gas-pump text-blue-500 text-base"></i>
+                                <div>
+                                    <div class="text-[10px] uppercase text-slate-400 font-semibold">Combustible</div>
+                                    <div id="detailFuel" class="text-xs font-bold text-slate-800">Gasolina</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div>
+                            <h4 class="text-xs font-bold uppercase text-slate-500 mb-1">Descripción del vendedor</h4>
+                            <p id="detailDescription" class="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100 max-h-24 overflow-y-auto">
+                                Sin descripción detallada.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción / Contacto -->
+                    <div class="pt-2 border-t border-slate-100 space-y-2">
+                        <a id="btnWhatsapp" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 text-sm transition-all">
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                            <span>Contactar por WhatsApp</span>
+                        </a>
+
+                        <button id="btnPhoneCall" onclick="simulateCall()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 text-xs transition-all">
+                            <i class="fa-solid fa-phone text-slate-600"></i>
+                            <span id="detailPhone">Ver número de teléfono</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIE DE PÁGINA / FOOTER -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-10 mt-auto border-t border-slate-800">
+        <!-- Contenido footer omitido para mayor brevedad pero se mantiene igual... -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-500">
+            <p>&copy; 2026 AutoLima Marketplace. Todos los derechos reservados. Venta de autos de segunda mano en Lima, Perú.</p>
+        </div>
+    </footer>
+
+    <!-- LÓGICA DE LA APLICACIÓN (JAVASCRIPT) -->
+    <script>
+        const EXCHANGE_RATE = 3.75;
+
+        // Base de Datos Inicial de Autos (AHORA TODOS TIENEN ARREGLOS DE IMÁGENES)
+        let carsData = [
+            {
+                id: 1,
+                brand: "HONDA",
+                model: "HONDA CIVIC",
+                year: 2021,
+                priceUSD: 13200,
+                mileage: 34000,
+                transmission: "Automática",
+                fuel: "Gasolina",
+                location: "Lima, Surco",
+                phone: "+51946290208",
+                imageUrl: [
+                    "FOTOS DE CARROS EN VENTA/honda civic 2.jpg",
+                    "FOTOS DE CARROS EN VENTA/honda_20126.jpg",
+                    "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&auto=format&fit=crop&q=80" // Ejemplo de tercera foto
+                ],
+                description: "Auto de segunda impecable en Surco. Único dueño, mantenimientos al día en concesionario.",
+                featured: true
+            },
+            {
+                id: 2,
+                brand: "Hyundai",
+                model: "Tucson GL 2.0",
+                year: 2020,
+                priceUSD: 18900,
+                mileage: 48000,
+                transmission: "Automática",
+                fuel: "Gasolina",
+                location: "Lima, Miraflores",
+                phone: "+51987654321",
+                imageUrl: [
+                    "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&auto=format&fit=crop&q=80"
+                ],
+                description: "Camioneta seminueva en Miraflores. Mandos en el timón, cámara de retroceso y láminas de seguridad.",
+                featured: false
+            },
+            {
+                id: 3,
+                brand: "Kia",
+                model: "Rio Sedan",
+                year: 2019,
+                priceUSD: 11500,
+                mileage: 52000,
+                transmission: "Mecánica",
+                fuel: "Gas / GLP/GNV",
+                location: "Lima, La Victoria",
+                phone: "+51955443322",
+                imageUrl: [
+                    "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&auto=format&fit=crop&q=80"
+                ],
+                description: "Auto económico a gas GLP dual cancelado e inscrito en SUNARP. Ubicado en La Victoria, Lima.",
+                featured: false
+            },
+            {
+                id: 2,
+                brand: "Hyundai",
+                model: "Tucson GL 2.0",
+                year: 2020,
+                priceUSD: 18900,
+                mileage: 48000,
+                transmission: "Automática",
+                fuel: "Gasolina",
+                location: "Lima, Miraflores",
+                phone: "+51987654321",
+                imageUrl: [
+                    "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&auto=format&fit=crop&q=80"
+                ],
+                description: "Camioneta seminueva en Miraflores. Mandos en el timón, cámara de retroceso y láminas de seguridad.",
+                featured: false
+            }
+        ];
+
+        let currentTransmission = 'all';
+
+        window.onload = function() {
+            renderCars(carsData);
+        };
+
+        function formatUSD(amount) {
+            return '$' + amount.toLocaleString('en-US');
+        }
+
+        function formatPEN(amountUSD) {
+            const pen = Math.round(amountUSD * EXCHANGE_RATE);
+            return 'S/ ' + pen.toLocaleString('es-PE');
+        }
+
+        function renderCars(cars) {
+            const carGrid = document.getElementById('carGrid');
+            const emptyState = document.getElementById('emptyState');
+            const resultCount = document.getElementById('resultCount');
+
+            carGrid.innerHTML = '';
+
+            if (cars.length === 0) {
+                emptyState.classList.remove('hidden');
+                resultCount.textContent = '0 autos encontrados';
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            resultCount.textContent = `Mostrando ${cars.length} auto(s) disponible(s)`;
+
+            cars.forEach(car => {
+                // Obtenemos la primera imagen del arreglo para mostrarla en la tarjeta
+                const mainImage = Array.isArray(car.imageUrl) && car.imageUrl.length > 0 ? car.imageUrl[0] : 'https://placehold.co/600x400/1e293b/ffffff?text=AutoMatch';
+
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group';
+                
+                card.innerHTML = `
+                    <div class="relative h-48 bg-slate-100 overflow-hidden cursor-pointer" onclick="openDetailModal(${car.id})">
+                        <img src="${mainImage}" alt="${car.brand} ${car.model}" 
+                             onerror="this.src='https://placehold.co/600x400/1e293b/ffffff?text=Imagen+Rota'" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        
+                        ${car.featured ? `
+                            <span class="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-md shadow-md tracking-wider">
+                                Destacado
+                            </span>
+                        ` : ''}
+
+                        <!-- Indicador de varias fotos -->
+                        ${Array.isArray(car.imageUrl) && car.imageUrl.length > 1 ? `
+                            <span class="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md">
+                                <i class="fa-regular fa-images"></i> ${car.imageUrl.length}
+                            </span>
+                        ` : ''}
+
+                        <span class="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
+                            <i class="fa-solid fa-location-dot text-blue-400 mr-1"></i>${car.location.split(',')[0]}
+                        </span>
+                    </div>
+
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="text-[11px] font-bold uppercase tracking-wider text-blue-600 mb-1">${car.brand}</div>
+                            <h3 class="font-black text-slate-900 text-lg group-hover:text-blue-600 transition-colors line-clamp-1">
+                                ${car.model}
+                            </h3>
+
+                            <div class="flex flex-wrap gap-2 my-3">
+                                <span class="bg-slate-100 text-slate-700 text-[11px] font-semibold px-2.5 py-1 rounded-md flex items-center gap-1">
+                                    <i class="fa-regular fa-calendar text-slate-400"></i> ${car.year}
+                                </span>
+                                <span class="bg-slate-100 text-slate-700 text-[11px] font-semibold px-2.5 py-1 rounded-md flex items-center gap-1">
+                                    <i class="fa-solid fa-gauge-high text-slate-400"></i> ${(car.mileage/1000).toFixed(0)}k km
+                                </span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="pt-3 border-t border-slate-100 flex items-baseline justify-between mb-4">
+                                <div>
+                                    <div class="text-xl font-black text-emerald-600">${formatUSD(car.priceUSD)}</div>
+                                    <div class="text-xs font-semibold text-slate-400">${formatPEN(car.priceUSD)}</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="openDetailModal(${car.id})" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5">
+                                    <span>Ver detalle</span>
+                                </button>
+                                <a href="https://wa.me/${car.phone}?text=Hola,%20estoy%20interesado%20en%20el%20${encodeURIComponent(car.brand + ' ' + car.model)}." 
+                                   target="_blank" 
+                                   class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                                    <span>WhatsApp</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                carGrid.appendChild(card);
+            });
+        }
+
+        function applyFilters() {
+            // (La lógica de filtros se mantiene exactamente igual...)
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const district = document.getElementById('districtFilter') ? document.getElementById('districtFilter').value : 'all';
+            const maxPrice = parseFloat(document.getElementById('priceFilter').value);
+            const minYear = parseInt(document.getElementById('yearFilter').value);
+            const fuel = document.getElementById('fuelFilter').value;
+            const sortBy = document.getElementById('sortBy').value;
+
+            document.getElementById('priceDisplay').textContent = formatUSD(maxPrice);
+
+            let filtered = carsData.filter(car => {
+                const matchQuery = car.brand.toLowerCase().includes(query) || car.model.toLowerCase().includes(query) || car.location.toLowerCase().includes(query);
+                const matchDistrict = district === 'all' || car.location.toLowerCase().includes(district.toLowerCase());
+                const matchPrice = car.priceUSD <= maxPrice;
+                const matchYear = minYear === 0 || car.year >= minYear;
+                const matchTrans = currentTransmission === 'all' || car.transmission === currentTransmission;
+                const matchFuel = fuel === 'all' || car.fuel === fuel;
+
+                return matchQuery && matchDistrict && matchPrice && matchYear && matchTrans && matchFuel;
+            });
+
+            if (sortBy === 'priceLow') filtered.sort((a, b) => a.priceUSD - b.priceUSD);
+            else if (sortBy === 'priceHigh') filtered.sort((a, b) => b.priceUSD - a.priceUSD);
+            else if (sortBy === 'yearNew') filtered.sort((a, b) => b.year - a.year);
+            else filtered.sort((a, b) => b.id - a.id);
+
+            renderCars(filtered);
+        }
+
+        function syncHeaderSearch(val) {
+            document.getElementById('searchInput').value = val;
+            applyFilters();
+        }
+
+        function setTransmissionFilter(type) {
+            currentTransmission = type;
+            const btnAll = document.getElementById('btnTransAll');
+            const btnAuto = document.getElementById('btnTransAuto');
+            const btnMec = document.getElementById('btnTransMec');
+
+            [btnAll, btnAuto, btnMec].forEach(btn => btn.className = "py-1.5 rounded-lg hover:text-slate-900 transition-all");
+
+            if (type === 'all') btnAll.className = "py-1.5 rounded-lg bg-white shadow-xs text-blue-600 font-bold transition-all";
+            else if (type === 'Automática') btnAuto.className = "py-1.5 rounded-lg bg-white shadow-xs text-blue-600 font-bold transition-all";
+            else if (type === 'Mecánica') btnMec.className = "py-1.5 rounded-lg bg-white shadow-xs text-blue-600 font-bold transition-all";
+
+            applyFilters();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('headerSearchInput').value = '';
+            if (document.getElementById('districtFilter')) document.getElementById('districtFilter').value = 'all';
+            document.getElementById('priceFilter').value = 60000;
+            document.getElementById('yearFilter').value = 0;
+            document.getElementById('fuelFilter').value = 'all';
+            document.getElementById('sortBy').value = 'recent';
+            setTransmissionFilter('all');
+        }
+
+        // MODAL DETALLE CON SOPORTE DE GALERÍA
+        function openDetailModal(id) {
+            const car = carsData.find(c => c.id === id);
+            if (!car) return;
+
+            // Extraer las imágenes garantizando que sea un arreglo
+            const images = Array.isArray(car.imageUrl) ? car.imageUrl : [car.imageUrl];
+            const mainImg = document.getElementById('detailImg');
+            mainImg.src = images[0] || 'https://placehold.co/600x400';
+
+            // Contenedor de miniaturas
+            const thumbContainer = document.getElementById('detailThumbnails');
+            thumbContainer.innerHTML = '';
+
+            if (images.length > 1) {
+                thumbContainer.classList.remove('hidden');
+                images.forEach((imgUrl, index) => {
+                    const thumb = document.createElement('img');
+                    thumb.src = imgUrl;
+                    // Estilos de la miniatura
+                    thumb.className = `w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg cursor-pointer flex-shrink-0 border-2 transition-all ${index === 0 ? 'border-blue-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`;
+                    
+                    // Al hacer click, cambia la imagen principal
+                    thumb.onclick = () => {
+                        mainImg.src = imgUrl;
+                        // Quitar borde azul de todas y ponerlo en la seleccionada
+                        Array.from(thumbContainer.children).forEach(t => {
+                            t.classList.remove('border-blue-500', 'opacity-100');
+                            t.classList.add('border-transparent', 'opacity-60');
+                        });
+                        thumb.classList.remove('border-transparent', 'opacity-60');
+                        thumb.classList.add('border-blue-500', 'opacity-100');
+                    };
+                    thumbContainer.appendChild(thumb);
+                });
+            } else {
+                thumbContainer.classList.add('hidden'); // Ocultar si solo hay 1 foto
+            }
+
+            document.getElementById('detailTitle').textContent = `${car.brand} ${car.model}`;
+            document.getElementById('detailLocation').textContent = car.location;
+            document.getElementById('detailPriceUSD').textContent = formatUSD(car.priceUSD);
+            document.getElementById('detailPricePEN').textContent = formatPEN(car.priceUSD);
+            document.getElementById('detailYear').textContent = car.year;
+            document.getElementById('detailMileage').textContent = car.mileage.toLocaleString() + ' km';
+            document.getElementById('detailTransmission').textContent = car.transmission;
+            document.getElementById('detailFuel').textContent = car.fuel || 'Gasolina';
+            document.getElementById('detailDescription').textContent = car.description || 'Sin descripción adicional disponible.';
+            
+            const waMsg = `Hola,%20vi%20tu%20${encodeURIComponent(car.brand + ' ' + car.model)}%20en%20AutoLima%20y%20deseo%20más%20información.`;
+            document.getElementById('btnWhatsapp').href = `https://wa.me/${car.phone}?text=${waMsg}`;
+            document.getElementById('detailPhone').textContent = `Llamar: ${car.phone.substring(0, 7)}***`;
+
+            document.getElementById('detailModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function simulateCall() {
+            showToast('Contacto directo', 'Iniciando llamada con el propietario del vehículo...');
+        }
+
+        function openPublishModal() {
+            document.getElementById('publishModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePublishModal() {
+            document.getElementById('publishModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // LÓGICA DE SUBIDA DE IMÁGENES AL PUBLICAR
+        function handlePublish(e) {
+            e.preventDefault();
+
+            // Leer los archivos seleccionados del input type="file"
+            const fileInput = document.getElementById('inputFileImages');
+            let uploadedImages = [];
+
+            if (fileInput.files && fileInput.files.length > 0) {
+                // Crear URLs temporales para mostrar las imágenes locales
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    uploadedImages.push(URL.createObjectURL(fileInput.files[i]));
+                }
+            } else {
+                // Imagen por defecto si no suben nada
+                uploadedImages = ['https://placehold.co/600x400/1e293b/ffffff?text=Auto+Sin+Foto'];
+            }
+
+            const newCar = {
+                id: Date.now(),
+                brand: document.getElementById('inputBrand').value.trim(),
+                model: document.getElementById('inputModel').value.trim(),
+                year: parseInt(document.getElementById('inputYear').value),
+                priceUSD: parseFloat(document.getElementById('inputPrice').value),
+                mileage: parseInt(document.getElementById('inputMileage').value),
+                transmission: document.getElementById('inputTransmission').value,
+                fuel: document.getElementById('inputFuel').value,
+                location: document.getElementById('inputLocation').value.trim(),
+                phone: document.getElementById('inputPhone').value.trim(),
+                imageUrl: uploadedImages, // Pasamos el arreglo de imágenes subidas
+                description: document.getElementById('inputDescription').value.trim(),
+                featured: true
+            };
+
+            carsData.unshift(newCar);
+            document.getElementById('publishForm').reset();
+            closePublishModal();
+            applyFilters();
+            showToast('¡Auto Publicado!', 'Tu vehículo ha sido agregado con éxito al catálogo.');
+        }
+
+        function showToast(title, message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMessage').textContent = message;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
